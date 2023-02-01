@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+  prifiles:
+    active: local
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+---
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/bbrick?serverTimezone=UTC&characterEncoding=UTF-8&useSSL=false
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: localhost
+    port: 6379
+---
+config:
+  auth:
+    secret: youcantrevealthesecretkey1234012300040
+    token-expiration-hour: 1480849147370
+
+
