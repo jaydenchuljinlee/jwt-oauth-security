@@ -1,7 +1,9 @@
 package com.example.security.config.security;
 
 import com.example.security.comn.response.BaseResponse;
-import com.example.security.config.security.filter.JwtTokenFilter;
+import com.example.security.config.security.filter.JwtTokenFilterFactory;
+import com.example.security.config.security.handler.oauth.OAuth2AuthenticationSuccessHandler;
+import com.example.security.core.user.application.CustomOAuth2UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +22,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
-    private final JwtTokenFilter jwtTokenFilter;
+    private final JwtTokenFilterFactory jwtTokenFilterFactory;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final Environment environment;
 
     @Bean
@@ -41,25 +45,29 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers(
                         "/auth/login",
-                        "/users"
+                        "/users",
+                        "/oauth2/**"
                 ).permitAll()
                 .anyRequest().authenticated()
 
                 .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(((request, response, authException) -> {
-                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                    response.setStatus(HttpStatus.FORBIDDEN.value());
-                    response.getWriter().println(
-                            new ObjectMapper().writeValueAsString(BaseResponse.fail(authException.getMessage()))
-                    );
-                }))
-                .and()
+//                .exceptionHandling()
+//                .authenticationEntryPoint(((request, response, authException) -> {
+//                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+//                    response.setStatus(HttpStatus.FORBIDDEN.value());
+//                    response.getWriter().println(
+//                            new ObjectMapper().writeValueAsString(BaseResponse.fail(authException.getMessage()))
+//                    );
+//                }))
+//                .and()
                 .logout().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
                 .and()
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtTokenFilterFactory.getInstance(), UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login()
+                .userInfoEndpoint().userService(customOAuth2UserService).and()
+                .successHandler(oAuth2AuthenticationSuccessHandler);
 
         return http.build();
     }
