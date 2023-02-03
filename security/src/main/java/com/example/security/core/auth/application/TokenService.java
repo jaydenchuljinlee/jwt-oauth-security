@@ -22,6 +22,13 @@ public class TokenService {
     private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
+    public TokenDto generateToken(String email) {
+        String accessToken = jwtTokenUtil.createAccessToken(email);
+        RefreshToken refreshToken = jwtTokenUtil.createRefreshToken(email);
+
+        return TokenDto.of(accessToken, refreshToken.getRefreshToken());
+    }
+
     @CacheEvict(value = "user", key = "#email")
     public LogoutAccessToken processLogout(String email, TokenDto tokenDto) {
         this.deleteRefreshToken(email);

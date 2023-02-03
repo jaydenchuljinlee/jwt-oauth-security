@@ -44,9 +44,14 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(
-                        "/auth/login",
-                        "/users",
-                        "/oauth2/**"
+                        "/**",
+                        "/auth/**",
+                        "/login/**",
+                        "/users"
+//                        "/auth/login",
+////                        "/users",
+////                        "/login/**",
+////                        "/oauth/**"
                 ).permitAll()
                 .anyRequest().authenticated()
 
@@ -66,7 +71,8 @@ public class SecurityConfig {
                 .and()
                 .addFilterBefore(jwtTokenFilterFactory.getInstance(), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login()
-                .userInfoEndpoint().userService(customOAuth2UserService).and()
+                    .userInfoEndpoint().userService(customOAuth2UserService)
+                    .and()
                 .successHandler(oAuth2AuthenticationSuccessHandler);
 
         return http.build();

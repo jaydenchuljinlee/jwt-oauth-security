@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @Transactional
@@ -19,11 +21,7 @@ public class UserJoinService {
     private final PasswordEncoder passwordEncoder;
 
     public UserDetail join(String email, String password, String name, String phoneNumber, Gender gender) {
-        boolean userWithEmailExists = this.userDetailRepository.existsByEmail(email);
-
-        if(userWithEmailExists) {
-            throw UserDuplicationException.duplicatedEmail(email);
-        }
+        this.validateDuplicatedUser(email);
 
         String encodedPassword = passwordEncoder.encode(password);
         UserDetail userDetail = UserDetail.builder()
@@ -36,7 +34,17 @@ public class UserJoinService {
         this.userDetailRepository.save(userDetail);
 
         return userDetail;
+    }
 
+    public Optional<UserDetail> getUser(String email) {
+        return this.userDetailRepository.findByEmail(email);
+    }
 
+    public void validateDuplicatedUser(String email) {
+        boolean userWithEmailExists = this.userDetailRepository.existsByEmail(email);
+
+        if(userWithEmailExists) {
+            throw UserDuplicationException.duplicatedEmail(email);
+        }
     }
 }

@@ -29,10 +29,7 @@ public class UserLoginService {
 
         authenticationService.authenticate(loginRequest.getEmail(), loginRequest.getPassword());
 
-        String accessToken = jwtTokenUtil.createAccessToken(loginRequest.getEmail());
-        RefreshToken refreshToken = tokenService.saveRefreshToken(loginRequest.getEmail());
-
-        return TokenDto.of(accessToken, refreshToken.getRefreshToken());
+        return tokenService.generateToken(loginRequest.getEmail());
     }
 
     public LogoutAccessToken logout(HttpServletRequest request, TokenDto tokenDto) {
