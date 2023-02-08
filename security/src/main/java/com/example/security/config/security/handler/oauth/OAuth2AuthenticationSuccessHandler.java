@@ -30,10 +30,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         TokenDto tokenDto = tokenService.generateToken(oauth2User.getEmail());
 
-        response.setHeader(RequestHeaderType.X_AUTH_ACCESS_TOKEN.toString(), tokenDto.getAccessToken());
-        response.setHeader(RequestHeaderType.X_AUTH_REFRESH_TOKEN.toString(), tokenDto.getAccessToken());
+        response.setHeader(RequestHeaderType.X_AUTH_ACCESS_TOKEN.value(), tokenDto.getAccessToken());
+        response.setHeader(RequestHeaderType.X_AUTH_REFRESH_TOKEN.value(), tokenDto.getAccessToken());
 
-        getRedirectStrategy().sendRedirect(request, response, "http://localhost:8080/main");
-        // super.onAuthenticationSuccess(request, response, authentication);
+        getRedirectStrategy().sendRedirect(request, response, "http://localhost:8080/main/"+tokenDto.getAccessToken());
     }
 }
