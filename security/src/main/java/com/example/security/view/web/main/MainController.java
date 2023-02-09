@@ -15,4 +15,10 @@ public class MainController {
     public String main(@PathVariable String accessToken) {
         return accessToken;
     }
+
+    @ResponseBody
+    @GetMapping("/passed")
+    public String passedLogin() {
+        return "login is passed";
+    }
 }

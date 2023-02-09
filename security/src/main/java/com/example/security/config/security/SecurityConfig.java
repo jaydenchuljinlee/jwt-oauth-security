@@ -1,16 +1,13 @@
 package com.example.security.config.security;
 
-import com.example.security.comn.response.BaseResponse;
 import com.example.security.config.security.filter.JwtTokenFilterFactory;
+import com.example.security.config.security.handler.form.FormLoginSuccessHandler;
 import com.example.security.config.security.handler.oauth.OAuth2AuthenticationSuccessHandler;
 import com.example.security.core.user.application.CustomOAuth2UserService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -25,6 +22,7 @@ public class SecurityConfig {
     private final JwtTokenFilterFactory jwtTokenFilterFactory;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final FormLoginSuccessHandler formLoginSuccessHandler;
     private final Environment environment;
 
     @Bean
@@ -46,7 +44,6 @@ public class SecurityConfig {
                 .antMatchers(
                         "/**",
                         "/auth/**",
-                        "/login/**",
                         "/users"
 //                        "/auth/login",
 ////                        "/users",
@@ -69,7 +66,14 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
                 .and()
+                .formLogin()
+                .loginProcessingUrl("/login")
+                .successHandler(formLoginSuccessHandler)
+                .permitAll()
+
+                .and()
                 .addFilterBefore(jwtTokenFilterFactory.getInstance(), UsernamePasswordAuthenticationFilter.class)
+
                 .oauth2Login()
                     .userInfoEndpoint().userService(customOAuth2UserService)
                     .and()
@@ -77,4 +81,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }

@@ -13,7 +13,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,15 +30,10 @@ public class TokenService {
 
     @CacheEvict(value = "user", key = "#email")
     public LogoutAccessToken processLogout(String email, TokenDto tokenDto) {
-        this.deleteRefreshToken(email);
+        deleteRefreshToken(email);
         LogoutAccessToken logoutAccessToken = jwtTokenUtil.createLogoutToken(email, tokenDto.getAccessToken());
 
-        return this.logoutAccessToken(logoutAccessToken);
-    }
-
-    public RefreshToken saveRefreshToken(String email) {
-        RefreshToken token = jwtTokenUtil.createRefreshToken(email);
-        return refreshTokenRedisRepository.save(token);
+        return logoutAccessToken(logoutAccessToken);
     }
 
     public void deleteRefreshToken(String email) {
@@ -51,25 +45,18 @@ public class TokenService {
         return logoutAccessTokenRedisRepository.save(logoutAccessToken);
     }
 
-    public RefreshToken getRefreshToken(String email) {
-        Optional<RefreshToken> optional = refreshTokenRedisRepository.findById(email);
+//    public RefreshToken getRefreshToken(String email) {
+//        Optional<RefreshToken> optional = refreshTokenRedisRepository.findById(email);
+//
+//        if (optional.isEmpty()) {
+//            throw new InvalidTokenException("There is no refresh token");
+//        }
+//
+//        return optional.get();
+//    }
 
-        if (optional.isEmpty()) {
-            throw new InvalidTokenException("There is no refresh token");
-        }
-
-        return optional.get();
-    }
-
-    public void validate(String token) {
-        checkLogout(token);
-        validateAccessToken(token);
-    }
-
-    public void validateAccessToken(String token) {
-        if (this.jwtTokenUtil.isExpiredToken(token)) {
-            throw new InvalidTokenException("Token was expired");
-        }
+    public boolean isExpiredAccessToken(String token) {
+        return jwtTokenUtil.isExpiredToken(token);
     }
 
     public void checkLogout(String accessToken) {
@@ -85,13 +72,15 @@ public class TokenService {
 
     public String getToken(HttpServletRequest request, RequestHeaderType requestHeaderType) {
         String token = request.getHeader(requestHeaderType.value());
-        return this.jwtTokenUtil.getToken(token);
+
+        return jwtTokenUtil.getToken(token);
     }
 
-    public TokenDto getTokenDto(HttpServletRequest request) {
-        String accessToken = this.getToken(request, RequestHeaderType.X_AUTH_ACCESS_TOKEN);
-        String refreshToken = this.getToken(request, RequestHeaderType.X_AUTH_REFRESH_TOKEN);
+    public String getRefreshToken(String token) {
+        return jwtTokenUtil.reIssueRefreshToken(token);
+    }
 
-        return TokenDto.of(accessToken, refreshToken);
+    public String reIssueAccessToken(String email) {
+        return jwtTokenUtil.createAccessToken(email);
     }
 }

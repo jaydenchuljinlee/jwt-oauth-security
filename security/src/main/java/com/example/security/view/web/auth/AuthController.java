@@ -18,11 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthController {
     private final UserLoginService userLoginService;
 
-    @PostMapping("/auth/login")
-    public ResponseEntity<BaseResponse<TokenDto>> login(@RequestBody LoginRequest request) {
+    @PostMapping("/login")
+    public ResponseEntity<BaseResponse<TokenDto>> login(HttpServletRequest request, @RequestBody LoginRequest loginRequest) {
         // Servlet Filter를 통해 Login API 처리가 된다.
 
-        TokenDto tokenDto = userLoginService.login(request);
+        TokenDto tokenDto = userLoginService.login(request, loginRequest);
 
         return ResponseEntity
                 .ok()
@@ -49,8 +49,8 @@ public class AuthController {
     public ResponseEntity<BaseResponse<TokenDto>> reissue(
             @RequestHeader("X-AUTH-REFRESH-TOKEN") String refreshToken
     ) {
-       TokenDto tokenDto = userLoginService.reissue(refreshToken);
-       return ResponseEntity.ok(BaseResponse.success(tokenDto));
+       //TokenDto tokenDto = userLoginService.reissue(refreshToken);
+       return ResponseEntity.ok(BaseResponse.success());
     }
 
     @GetMapping("/ping")

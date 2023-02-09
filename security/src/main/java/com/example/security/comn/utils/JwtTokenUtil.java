@@ -1,9 +1,11 @@
 package com.example.security.comn.utils;
 
 import com.example.security.comn.properties.JwtProperties;
+import com.example.security.core.auth.domain.exceptions.InvalidTokenException;
 import com.example.security.core.auth.dto.LogoutAccessToken;
 import com.example.security.core.auth.dto.RefreshToken;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -67,6 +69,30 @@ public class JwtTokenUtil {
         return expiration.before(new Date());
     }
 
+    public String reIssueRefreshToken(String token) {
+        if (token == null) {
+            throw new InvalidTokenException("Refresh Token not exist");
+        }
+
+        if (isExpiredToken(token)) {
+            throw new InvalidTokenException("Refresh Token was Expired");
+        }
+
+        if (!isPassedByHalfTime(token)) return token;
+
+        String email = getEmail(token);
+
+        return generateToken(email, REFRESH_TOKEN_EXPIRATION_TIME);
+    }
+
+    public boolean isPassedByHalfTime(String token) {
+        float expiration = extractClaims(token).getExpiration().getTime();
+        float now = new Date().getTime();
+        float isHalf = now / expiration;
+
+        return isHalf >= 0.5;
+    }
+
     public String getToken(String authorization) {
         if (!(StringUtils.hasText(authorization) && authorization.startsWith(JWT_TOKEN_EXCEPT_STRING))) return null;
 
@@ -74,11 +100,15 @@ public class JwtTokenUtil {
     }
 
     private Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSignKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch(ExpiredJwtException e) {
+            throw new InvalidTokenException("JWT Token is expired");
+        }
     }
 
     private Key getSignKey() {

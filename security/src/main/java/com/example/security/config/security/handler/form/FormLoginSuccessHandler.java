@@ -1,28 +1,29 @@
-package com.example.security.config.security.handler.oauth;
+package com.example.security.config.security.handler.form;
 
 import com.example.security.comn.service.cache.CacheService;
 import com.example.security.config.security.handler.AbstractLoginSuccessHandler;
 import com.example.security.core.auth.application.TokenService;
 import com.example.security.core.auth.dto.TokenDto;
-import com.example.security.core.user.domain.dto.KakaoOauth2User;
+import com.example.security.core.user.domain.entity.UserDetail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class OAuth2AuthenticationSuccessHandler extends AbstractLoginSuccessHandler {
+public class FormLoginSuccessHandler extends AbstractLoginSuccessHandler {
     private final TokenService tokenService;
 
-    public OAuth2AuthenticationSuccessHandler(TokenService tokenService, CacheService cacheService) {
+    public FormLoginSuccessHandler(CacheService cacheService, TokenService tokenService) {
         super(cacheService);
         this.tokenService = tokenService;
     }
 
     @Override
     protected TokenDto getTokenDto(Authentication authentication) {
-        KakaoOauth2User oauth2User = (KakaoOauth2User) authentication.getPrincipal();
+        String email =  authentication.getPrincipal().toString();
 
-        return tokenService.generateToken(oauth2User.getEmail());
+        return tokenService.generateToken(email);
     }
+
 }
