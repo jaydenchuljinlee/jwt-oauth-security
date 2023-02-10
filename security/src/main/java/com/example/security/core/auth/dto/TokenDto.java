@@ -3,9 +3,8 @@ package com.example.security.core.auth.dto;
 import lombok.*;
 
 @Getter @Builder
-@AllArgsConstructor
+@AllArgsConstructor @NoArgsConstructor
 public class TokenDto {
-
     private static final int TOKEN_STRING_LOCATION = 7;
 
     private String accessToken;

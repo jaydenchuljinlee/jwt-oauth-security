@@ -4,7 +4,6 @@ import com.example.security.comn.service.cache.CacheService;
 import com.example.security.config.security.handler.AbstractLoginSuccessHandler;
 import com.example.security.core.auth.application.TokenService;
 import com.example.security.core.auth.dto.TokenDto;
-import com.example.security.core.user.domain.entity.UserDetail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class FormLoginSuccessHandler extends AbstractLoginSuccessHandler {
     private final TokenService tokenService;
 
-    public FormLoginSuccessHandler(CacheService cacheService, TokenService tokenService) {
+    FormLoginSuccessHandler(CacheService cacheService, TokenService tokenService) {
         super(cacheService);
         this.tokenService = tokenService;
     }
@@ -24,6 +23,11 @@ public class FormLoginSuccessHandler extends AbstractLoginSuccessHandler {
         String email =  authentication.getPrincipal().toString();
 
         return tokenService.generateToken(email);
+    }
+
+    @Override
+    protected void doProcess() {
+
     }
 
 }

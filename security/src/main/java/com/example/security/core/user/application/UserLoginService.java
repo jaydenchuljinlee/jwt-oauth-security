@@ -1,13 +1,7 @@
 package com.example.security.core.user.application;
 
-import com.example.security.comn.enums.request.RequestHeaderType;
-import com.example.security.comn.service.cache.CacheService;
-import com.example.security.comn.utils.JwtTokenUtil;
 import com.example.security.core.auth.application.AuthenticationService;
 import com.example.security.core.auth.application.TokenService;
-import com.example.security.core.auth.domain.exceptions.InvalidTokenException;
-import com.example.security.core.auth.dto.LogoutAccessToken;
-import com.example.security.core.auth.dto.RefreshToken;
 import com.example.security.core.auth.dto.TokenDto;
 import com.example.security.view.web.auth.dto.LoginRequest;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +28,4 @@ public class UserLoginService {
         return tokenService.generateToken(loginRequest.getEmail());
     }
 
-    public LogoutAccessToken logout(HttpServletRequest request, TokenDto tokenDto) {
-        String token = tokenService.getToken(request, RequestHeaderType.X_AUTH_ACCESS_TOKEN);
-        String email = tokenService.getEmail(token);
-
-        return tokenService.processLogout(email, tokenDto);
-    }
 }

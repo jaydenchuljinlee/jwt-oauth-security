@@ -7,11 +7,13 @@ import com.example.security.core.user.application.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -33,6 +35,14 @@ public class SecurityConfig {
             for (String activeProfile: activeProfiles) {
                 web.debug(true);
             }
+
+//            web.ignoring().antMatchers(
+//                    "/main",
+//                    "/login",
+//                    "/login/**",
+//                    "/auth/**",
+//                    "/users"
+//            );
         };
     }
 
@@ -41,43 +51,33 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeRequests()
+
                 .antMatchers(
-                        "/**",
+                       "/main",
+                        "/login/**",
                         "/auth/**",
                         "/users"
-//                        "/auth/login",
-////                        "/users",
-////                        "/login/**",
-////                        "/oauth/**"
                 ).permitAll()
                 .anyRequest().authenticated()
 
                 .and()
-//                .exceptionHandling()
-//                .authenticationEntryPoint(((request, response, authException) -> {
-//                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//                    response.setStatus(HttpStatus.FORBIDDEN.value());
-//                    response.getWriter().println(
-//                            new ObjectMapper().writeValueAsString(BaseResponse.fail(authException.getMessage()))
-//                    );
-//                }))
-//                .and()
                 .logout().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
+                .and().cors()
                 .and()
                 .formLogin()
                 .loginProcessingUrl("/login")
                 .successHandler(formLoginSuccessHandler)
-                .permitAll()
 
                 .and()
-                .addFilterBefore(jwtTokenFilterFactory.getInstance(), UsernamePasswordAuthenticationFilter.class)
-
                 .oauth2Login()
-                    .userInfoEndpoint().userService(customOAuth2UserService)
-                    .and()
-                .successHandler(oAuth2AuthenticationSuccessHandler);
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .userInfoEndpoint().userService(customOAuth2UserService)
+                .and()
+
+                .and()
+                .addFilterBefore(jwtTokenFilterFactory.getInstance(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

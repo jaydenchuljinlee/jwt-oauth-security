@@ -2,7 +2,6 @@ package com.example.security.comn.utils;
 
 import com.example.security.comn.properties.JwtProperties;
 import com.example.security.core.auth.domain.exceptions.InvalidTokenException;
-import com.example.security.core.auth.dto.LogoutAccessToken;
 import com.example.security.core.auth.dto.RefreshToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -26,7 +25,7 @@ public class JwtTokenUtil {
     // private final Long tokenExpirationHour = 30 * 60 * 1000L;
     private static final String JWT_TOKEN_EXCEPT_STRING = "Bearer ";
     private static final int JWT_TOKEN_STRING_START = 7;
-    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 30; // 30분
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60; // 30분
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7; // 7일
 
     public String createAccessToken(String email) {
@@ -37,10 +36,6 @@ public class JwtTokenUtil {
         String token = this.generateToken(email, REFRESH_TOKEN_EXPIRATION_TIME);
 
         return RefreshToken.of(email, token, REFRESH_TOKEN_EXPIRATION_TIME);
-    }
-
-    public LogoutAccessToken createLogoutToken(String email, String accessToken) {
-        return LogoutAccessToken.of(email, accessToken, getRemainMilliSeconds(accessToken));
     }
 
     public String generateToken(String email, long expiration) {
@@ -100,15 +95,23 @@ public class JwtTokenUtil {
     }
 
     private Claims extractClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String getExpiredEmail(String token) {
+        Claims claims = null;
+
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(getSignKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch(ExpiredJwtException e) {
-            throw new InvalidTokenException("JWT Token is expired");
+            claims = extractClaims(token);
+        } catch (ExpiredJwtException e) {
+            claims = e.getClaims();
         }
+
+        return claims.get("email", String.class);
     }
 
     private Key getSignKey() {

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class OAuth2AuthenticationSuccessHandler extends AbstractLoginSuccessHandler {
     private final TokenService tokenService;
 
-    public OAuth2AuthenticationSuccessHandler(TokenService tokenService, CacheService cacheService) {
+    public OAuth2AuthenticationSuccessHandler(CacheService cacheService, TokenService tokenService) {
         super(cacheService);
         this.tokenService = tokenService;
     }
@@ -24,5 +24,10 @@ public class OAuth2AuthenticationSuccessHandler extends AbstractLoginSuccessHand
         KakaoOauth2User oauth2User = (KakaoOauth2User) authentication.getPrincipal();
 
         return tokenService.generateToken(oauth2User.getEmail());
+    }
+
+    @Override
+    protected void doProcess() {
+
     }
 }
