@@ -1,6 +1,5 @@
 package com.example.security.comn.utils;
 
-import com.example.security.comn.enums.request.RequestCookie;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
