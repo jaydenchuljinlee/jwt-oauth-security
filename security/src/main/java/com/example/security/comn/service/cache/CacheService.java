@@ -6,5 +6,5 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public interface CacheService {
     String setAuthToken(TokenDto token) throws JsonProcessingException;
 
-    TokenDto getAuthToken(String email);
+    TokenDto getAuthToken(String email) throws JsonProcessingException;
 }

@@ -34,6 +34,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         if (request.getRequestURI().equals("/auth/token/reissue")) {
             filterChain.doFilter(request, response);
+            return;
         }
 
         if (StringUtils.isBlank(accessToken)) {
@@ -52,7 +53,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             setErrorResponse(response, HttpStatus.UNAUTHORIZED.value());
         }
 
-        if (!"".equals(email)) {
+        if (StringUtils.isNotEmpty(email)) {
             UserDetails userDetails = userDetailService.loadUserByUsername(email);
             this.setAuthentication(request, userDetails);
 

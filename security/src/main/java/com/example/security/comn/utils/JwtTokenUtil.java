@@ -25,8 +25,10 @@ public class JwtTokenUtil {
     // private final Long tokenExpirationHour = 30 * 60 * 1000L;
     private static final String JWT_TOKEN_EXCEPT_STRING = "Bearer ";
     private static final int JWT_TOKEN_STRING_START = 7;
-    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60; // 30분
-    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7; // 7일
+
+    private static final long ONE_DAY = 1000L * 60 * 60 * 24;
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 30; // 30분
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = ONE_DAY * 7; // 7일
 
     public String createAccessToken(String email) {
         return this.generateToken(email, ACCESS_TOKEN_EXPIRATION_TIME);
@@ -81,11 +83,11 @@ public class JwtTokenUtil {
     }
 
     public boolean isPassedByHalfTime(String token) {
-        float expiration = extractClaims(token).getExpiration().getTime();
-        float now = new Date().getTime();
-        float isHalf = now / expiration;
+        long expiration = extractClaims(token).getExpiration().getTime();
+        long now = new Date().getTime();
+        long diff = expiration - now;
 
-        return isHalf >= 0.5;
+        return (ONE_DAY*4) > diff ;
     }
 
     public String getToken(String authorization) {
