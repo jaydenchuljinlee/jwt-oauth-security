@@ -13,12 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JwtTokenUtilTest {
     private final String EMAIL = "ironjin92@gmail.com";
 
-    private JwtProperties jwtProperties;
     private JwtTokenUtil jwtTokenUtil;
 
     @BeforeEach
     public void beforeEach() {
-        jwtProperties = new JwtProperties();
+        JwtProperties jwtProperties = new JwtProperties();
         jwtProperties.setSecret("youcantrevealthesecretkey1234012300040");
         jwtProperties.setTokenExpirationHour(1480849147370L);
 

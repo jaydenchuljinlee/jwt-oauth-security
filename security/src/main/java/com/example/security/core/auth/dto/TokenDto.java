@@ -2,6 +2,7 @@ package com.example.security.core.auth.dto;
 
 import lombok.*;
 
+@EqualsAndHashCode
 @Getter @Builder
 @AllArgsConstructor @NoArgsConstructor
 public class TokenDto {
